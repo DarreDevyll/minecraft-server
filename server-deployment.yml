@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: minecraft-server
+spec:
+  selector:
+    matchLabels:
+      app: minecraft-server
+  template:
+    metadata:
+      labels:
+        app: minecraft-server
+    spec:
+      containers:
+      - name: minecraft-server
+        image: darre/minecraft-vanilla-server:1.20.1
+        ports:
+        - containerPort: 25565
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: minecraft
+spec:
+  selector:
+    app: minecraft-server
+  ports:
+  - port: 80
+    targetPort: 25565
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-minecraft
+spec:
+  rules:
+    paths:
+    - path: /minecraft
+      pathType: Exact
+      backend:
+        service:
+          name: minecraft
+          port:
+            number: 80
